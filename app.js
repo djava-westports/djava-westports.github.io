@@ -60,6 +60,7 @@ const JIRA_APP_MAP = {
   'WPSWDCSUP': 'WDC',
   'WPCBASSUP': 'CBAS',
   'WPEDICSUP': 'EDIC',
+  'WPETPSUP':  'ETP',
 };
 
 const CAB_CHANGE_TYPES = ['Warfile Deployment','Data Patch','DB Change','New .exe File Installation'];
@@ -283,6 +284,7 @@ async function loadTickets() {
     tickets = data.tickets ? data.tickets : (Array.isArray(data) ? data : []);
     tickets.forEach(t => {
       if (!t.Application && t['Jira Ref']) t.Application = detectAppFromJiraRef(t['Jira Ref']);
+      if (!t.Application && t.ID) t.Application = detectAppFromJiraRef(t.ID);
       // GAS email-auto-created tickets come in as 'Manual' — remap to match new naming
       if (t.Source === 'Manual') t.Source = 'ManageEngine';
       // Null/empty source tickets that match email RE-/SR- patterns are also ManageEngine
@@ -464,7 +466,7 @@ function applyFilters() {
 
   renderTable(tickets.filter(t => {
     if (hideResolved && st.size === 0 && (t.Status === 'Resolved' || t.Status === 'Closed')) return false;
-    if (q  && !['Title','Description','ID','Requester','Notes','Project','Jira Ref','Change Ticket No'].some(k => (t[k]||'').toLowerCase().includes(q))) return false;
+    if (q  && !['Title','Description','ID','Requester','Notes','Project','Jira Ref','Change Ticket No','Application'].some(k => (t[k]||'').toLowerCase().includes(q))) return false;
     if (sr && t.Source      !== sr) return false;
     if (sg.size && !sg.has(t.Stage    || 'Not set')) return false;
     if (ty.size && !ty.has(t.Type     || '')) return false;
